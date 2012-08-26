@@ -1,0 +1,24 @@
+README
+
+Scott Wiedemann
+10/06/2010
+Tug of War
+
+---------------------------------------------------------
+To compile my program:
+
+make clean
+make
+---------------------------------------------------------
+
+---------------------------------------------------------
+To run my code:
+
+cat ./input | ./tugofwar
+
+where ./input is a file containing the formatted data to 
+be processed.
+---------------------------------------------------------
+
+Please email me if you run into any problems or have any 
+questions: swiedema@mines.edu

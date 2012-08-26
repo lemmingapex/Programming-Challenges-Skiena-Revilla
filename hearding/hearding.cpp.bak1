@@ -1,0 +1,261 @@
+// Scott Wiedemann
+// 04/29/2012
+// hearding.cpp
+
+#include <math.h>
+#include <stdio.h>
+#include <vector>
+#define SIZE 10000
+
+using namespace std;
+
+class Point
+{
+	public:	
+		double x,y;
+	
+		Point()
+		{ }
+
+		Point(const double& A, const double& B)
+		{
+			x=A;
+			y=B;
+		}
+
+		Point operator+ (const Point& a) const
+		{
+			Point result;
+			result.x = x+a.x;
+			result.y = y+a.y;
+			return result;
+		}
+
+		Point operator+ (const double& a) const
+		{
+			Point result;
+			result.x = x+a;
+			result.y = y+a;
+			return result;
+		}
+
+		Point operator- (const Point& a) const
+		{
+			Point result;
+			result.x = x-a.x;
+			result.y = y-a.y;
+			return result;
+		}
+
+		Point operator- (const double& a) const
+		{
+			Point result;
+			result.x = x-a;
+			result.y = y-a;
+			return result;
+		}
+
+		Point operator* (const Point& a) const
+		{
+			Point result;
+			result.x = x*a.x;
+			result.y = y*a.y;
+			return result;
+		}
+
+		Point operator* (const double& a) const
+		{
+			Point result;
+			result.x = x*a;
+			result.y = y*a;
+			return result;
+		}
+
+		Point operator/ (const Point& a) const
+		{
+			Point result;
+			result.x = x/a.x;
+			result.y = y/a.y;
+			return result;
+		}
+
+		Point operator/ (const double& a) const
+		{
+			Point result;
+			result.x = x/a;
+			result.y = y/a;
+			return result;
+		}
+
+		double magnitude()
+		{
+			return sqrt((x*x)+(y*y));
+		}
+
+		double cross(const Point& P)
+		{
+			return x*P.y - y*P.x;
+		}
+
+		double dist(const Point& P) {
+			return sqrt(((P.x-x)*(P.x-x))+((P.y-y)*(P.y-y)));
+		}
+};
+
+// array of all the Points
+Point allPoints[SIZE];
+int lenPoints, right, l;
+double relativeAngle;
+Point relativePoint;
+
+// modified quicksort based on sin of the angle
+// faster to use sin, rather than the angle.
+// can use cos(x) because it is monotonically decreasing function with respect to x
+void sortPointsRelativeAngle(int L, int R)
+{
+	int i = L, j = R;
+	Point tmp;
+	Point pivot = allPoints[(L+R)/2];
+	while(i <= j)
+	{
+		while(atan2(allPoints[i].y - relativePoint.y, allPoints[i].x - relativePoint.x) + relativeAngle < atan2(pivot.y - relativePoint.y, pivot.x - relativePoint.x))
+		{
+			i++;
+		}
+
+		while(atan2(allPoints[j].y - relativePoint.y, allPoints[j].x - relativePoint.x) + relativeAngle > atan2(pivot.y - relativePoint.y, pivot.x - relativePoint.x))
+		{
+			j--;
+		}
+
+		if(i <= j)
+		{
+			tmp = allPoints[i];
+			allPoints[i] = allPoints[j];
+			allPoints[j] = tmp;
+			i++;
+			j--;
+		}
+	};
+
+	if(L < j)
+	{
+		sortPointsRelativeAngle(L, j);
+	}
+	if(i < R)
+	{
+		sortPointsRelativeAngle(i, R);
+	}
+}
+
+void sortPointsAngle(int L, int R, Point RelativePoint) {
+	relativePoint = RelativePoint;
+	relativeAngle = atan2(RelativePoint.y - allPoints[0].y, RelativePoint.x - allPoints[0].x);
+	sortPointsRelativeAngle(L, R);
+}
+
+//is point 3 a left turn or right turn with respect to point 1 and 2?
+double ccw(Point p1, Point p2, Point p3) {
+	return (p1 - p2).cross(p3 - p2);
+}
+
+vector<int> findConvexHull() {
+	vector<int> convexHullIndices;
+	convexHullIndices.push_back(0);
+	convexHullIndices.push_back(1);
+
+	// number of points on the convex hull
+	int i = 2;
+	for(int j=2; j<lenPoints; j++) {
+		// while left turns or co-linear?
+		while(ccw(allPoints[convexHullIndices.at(i-2)], allPoints[convexHullIndices.at(i-1)], allPoints[j]) <= 0 && j<lenPoints) {
+			//printf("left\n");
+			//printf("push\n");
+			convexHullIndices.push_back(j);
+			i++;
+			j++;
+		}
+		// if it's a right turn
+		if(ccw(allPoints[convexHullIndices.at(i-2)], allPoints[convexHullIndices.at(i-1)], allPoints[j]) > 0) {
+			//printf("right\n");
+			// remove points until it's a left turn
+			while(ccw(allPoints[convexHullIndices.at(i-2)], allPoints[convexHullIndices.at(i-1)], allPoints[j]) > 0) {
+				//printf("pop\n");
+				convexHullIndices.pop_back();
+				i--;
+			}
+			// add the new point;
+			//printf("push\n");
+			convexHullIndices.push_back(j);
+			i++;
+		}
+	}
+	return convexHullIndices;
+}
+
+void solve()
+{
+	if(lenPoints<2)
+		return;
+}
+
+int main() {
+	int readReturn;
+	int cases = 0;
+	readReturn = scanf("%d", &cases);
+	//printf("cases: %i\n", cases);
+
+	for(int i = 0; i < cases; i++) {
+		readReturn = scanf("%d", &lenPoints);
+		// add the phone pole at 0,0
+		lenPoints++;
+		allPoints[0] = Point(0.0, 0.0);
+
+		//printf("number of Points: %i\n", lenPoints);
+		for(int j=1; j<lenPoints; j++) {
+			readReturn = scanf("%lf", &allPoints[j].x);
+			readReturn = scanf("%lf", &allPoints[j].y);
+		}
+/*
+		// find min y index
+		int minYIndex = 0;
+		for(int j=1; j<lenPoints; j++) {
+			if(allPoints[j].y < allPoints[minYIndex].y) {
+				minYIndex = j;
+			} else if(allPoints[j].y == allPoints[minYIndex].y) {
+				// break ties with x-coordinate
+				if(allPoints[j].x < allPoints[minYIndex].x) {
+					minYIndex = j;
+				}
+			}
+		}
+		// swap min y index with 0 index
+		Point temp = allPoints[0];
+		allPoints[0] = allPoints[minYIndex];
+		allPoints[minYIndex] = temp;
+*/
+		// sort the Points
+		sortPointsAngle(1, lenPoints - 1, allPoints[0]);
+
+		// find the hull
+		vector<int> convexHullIndices = findConvexHull();		
+
+		int i = 0;
+		for(int j=0; j<lenPoints; j++) {
+			if(convexHullIndices.at(i) == j) {
+				printf("%.2lf, %.2lf, [%i]\n", allPoints[convexHullIndices.at(i)].x, allPoints[convexHullIndices.at(i)].y, convexHullIndices.at(i)+1);
+				i++;
+			} else {
+				printf("%.2lf, %.2lf, %i\n", allPoints[j].x, allPoints[j].y, j+1);
+			}
+		}
+
+		solve();
+
+		//printf("%.2lf\n", delta);
+
+		//printf("%s","INFINITY\n");
+		printf("\n");
+	}
+	return 0;
+}
