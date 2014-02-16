@@ -1,15 +1,17 @@
+CFLAGS = -O3 -funroll-loops -g -Wall -ansi
 CC = g++
-OPT = -O2
-LIBS = -lm
-WALL = -Wall
+SRCS = $(wildcard src/*.cpp)
+OBJS = $(SRCS:.cpp=.o)
+PROG = moth
+LINKFLAGS = -lm
 
-all : moth
+all: $(SRCS) $(PROG)
 
-cpp : moth.o
-	$(CC) $(WALL) $(OPT) -o cpp moth.o $(LIBS)
+$(PROG): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $@ $(LINKFLAGS)
 
-moth.o : moth.cpp
-	$(CC) $(OPT) -c moth.cpp
+.cpp.o:
+	$(CC) $(CFLAGS) $< -c -o $@
 
-clean: 
-	rm *.o moth
+clean:
+	rm $(OBJS) $(PROG)

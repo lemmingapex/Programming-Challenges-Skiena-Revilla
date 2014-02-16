@@ -1,11 +1,10 @@
 // Scott Wiedemann
-// 04/29/2012
-// hearding.cpp
+// 02/16/2014
+// moth.cpp
 
 #include <math.h>
 #include <stdio.h>
 #include <vector>
-#define SIZE 10000
 
 using namespace std;
 
@@ -87,6 +86,11 @@ class Point
 			return result;
 		}
 
+		bool operator== (const Point& a) const
+		{
+			return (x == a.x && y == a.y);
+		}
+
 		double magnitude()
 		{
 			return sqrt((x*x)+(y*y));
@@ -102,149 +106,42 @@ class Point
 		}
 };
 
-// array of all the Points
-Point allPoints[SIZE];
-int lenPoints, right, l;
-
-// modified quicksort based on sin of the angle
-// faster to use cos, rather than the angle.
-// can use cos(x) because it is monotonically decreasing function with respect to x
-void sortPointsSin(int L, int R)
-{
-	int i = L, j = R;
-	Point tmp;
-	Point pivot = allPoints[(L+R)/2];
-	while(i <= j)
-	{
-		while((allPoints[i].x - allPoints[0].x)/allPoints[i].dist(allPoints[0]) > (pivot.x - allPoints[0].x)/pivot.dist(allPoints[0]))
-		{
-			i++;
-		}
-
-		while((allPoints[j].x - allPoints[0].x)/allPoints[j].dist(allPoints[0]) < (pivot.x - allPoints[0].x)/pivot.dist(allPoints[0]))
-		{
-			j--;
-		}
-
-		if(i <= j)
-		{
-			tmp = allPoints[i];
-			allPoints[i] = allPoints[j];
-			allPoints[j] = tmp;
-			i++;
-			j--;
-		}
-	};
-
-	if(L < j)
-	{
-		sortPointsSin(L, j);
-	}
-	if(i < R)
-	{
-		sortPointsSin(i, R);
-	}
-}
-
-
 //is point 3 a left turn or right turn with respect to point 1 and 2?
 double ccw(Point p1, Point p2, Point p3) {
 	return (p1 - p2).cross(p3 - p2);
 }
 
-vector<int> findConvexHull() {
+vector<int> giftWrapping(Point* points, int length) {
 	vector<int> convexHullIndices;
-	convexHullIndices.push_back(0);
-	convexHullIndices.push_back(1);
 
-	// number of points on the convex hull
-	int i = 2;
-
-
-
-	for (i=2; i < lenPoints; i++) {
-		bool done_removing = false;
-		while (!done_removing) {
-			point &a = *(hull.end()-2), &b = *(hull.end()-1);
-			done_removing = turn_direction(a,b,*i) &gt;= 0;
-			if (!done_removing) {
-				hull.pop_back();
-			} else {
-				hull.push_back(*i);
+	int pointOnHullIndex = 0;
+	int endPointIndex = 0;
+	do {
+		convexHullIndices.push_back(pointOnHullIndex);
+		endPointIndex = 0;
+		for(int i=1; i<length; i++) {
+			if((points[pointOnHullIndex] == points[endPointIndex]) || ccw(points[pointOnHullIndex], points[endPointIndex], points[i]) > 0) {
+				endPointIndex = i;
 			}
 		}
-	}
+		pointOnHullIndex = endPointIndex;
+	} while(endPointIndex != convexHullIndices.at(0));
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-	for(int j=2; j<lenPoints; j++) {
-		// while left turns or co-linear?
-		//printf("%f", ccw(allPoints[convexHullIndices.at(i-2)], allPoints[convexHullIndices.at(i-1)], allPoints[j]));
-		while(ccw(allPoints[convexHullIndices.at(i-2)], allPoints[convexHullIndices.at(i-1)], allPoints[j]) <= 0 && j<lenPoints) {
-			if(ccw(allPoints[convexHullIndices.at(i-2)], allPoints[convexHullIndices.at(i-1)], allPoints[j]) == 0 && j<lenPoints) {
-				printf("co-linear\n");
-				double d1 = allPoints[convexHullIndices.at(i-2)].dist(allPoints[convexHullIndices.at(i-1)]);
-				double d2 = allPoints[convexHullIndices.at(i-2)].dist(allPoints[j]);
-				//printf("%f", d1);
-				//printf("%f", d2);
-				if(d1 > d2) {
-					int t = convexHullIndices.at(i-1);
-					convexHullIndices.pop_back();
-					convexHullIndices.push_back(j);
-					convexHullIndices.push_back(t);
-				} else {
-					convexHullIndices.push_back(j);
-				}
-			} else {
-				printf("left\n");
-				convexHullIndices.push_back(j);
-			}
-			i++;
-			j++;
-		}
-		// if it's a right turn
-		if(ccw(allPoints[convexHullIndices.at(i-2)], allPoints[convexHullIndices.at(i-1)], allPoints[j]) > 0) {
-			printf("right\n");
-			// remove points until it's a left turn
-			while(ccw(allPoints[convexHullIndices.at(i-2)], allPoints[convexHullIndices.at(i-1)], allPoints[j]) > 0) {
-				//printf("pop\n");
-				convexHullIndices.pop_back();
-				i--;
-			}
-			// add the new point;
-			//printf("push\n");
-			convexHullIndices.push_back(j);
-			i++;
-		}
-	}*/
 	return convexHullIndices;
 }
 
 int main() {
 	int readReturn;
 	int i = 0;
+	int lenPoints = 0;
 	readReturn = scanf("%d", &lenPoints);
 	while(lenPoints > 0) {
 		if(i>0) {
 			printf("\n");
 		}
 		i++;
-		//printf("number of Points: %i\n", lenPoints);
+		Point* allPoints = new Point[lenPoints];
+		//printf("%i points in case %i\n", lenPoints, i+1);
 		for(int j=0; j<lenPoints; j++) {
 			readReturn = scanf("%lf", &allPoints[j].x);
 			readReturn = scanf("%lf", &allPoints[j].y);
@@ -267,17 +164,10 @@ int main() {
 		allPoints[0] = allPoints[minYIndex];
 		allPoints[minYIndex] = temp;
 
-		// sort the Points
-		sortPointsSin(1, lenPoints - 1);
-
-		for(int j=0; j<lenPoints; j++) {
-			printf("%.2lf, %.2lf, %i\n", allPoints[j].x, allPoints[j].y, j+1);
-		}
-
 		// find the hull
-		vector<int> convexHullIndices = findConvexHull();
+		vector<int> convexHullIndices = giftWrapping(allPoints, lenPoints);	
 
-		printf("%s%i\n", "Convex hull size:",convexHullIndices.size());
+		//printf("%s%i\n", "Convex hull size:",convexHullIndices.size());
 
 		int chSize = convexHullIndices.size() -1;
 		printf("%s%i%s","Region #",i,":\n");
