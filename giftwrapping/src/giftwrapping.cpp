@@ -169,7 +169,6 @@ int main() {
 		allPoints[0] = allPoints[minXIndex];
 		allPoints[minXIndex] = temp;
 		
-
 		// find the hull
 		vector<int> convexHullIndices = giftWrapping(allPoints, lenPoints);		
 
@@ -187,20 +186,6 @@ int main() {
 				printf("%.2lf, %.2lf, %i\n", allPoints[j].x, allPoints[j].y, j+1);
 			}
 		}
-
-		/*int p1Index = convexHullIndices.at(0);
-		int p2Index = convexHullIndices.at(1);
-		double perimeterLen = 0.0;
-		for(int j=1; j<convexHullSize; j++) {
-			p2Index = convexHullIndices.at(j);
-			perimeterLen += allPoints[p1Index].dist(allPoints[p2Index]);
-			p1Index = p2Index;
-		}
-		perimeterLen += allPoints[p1Index].dist(allPoints[convexHullIndices.at(0)]);
-
-		//printf("%.2lf\n", perimeterLen);
-		//printf("\n");
-		*/
 	}
 	return 0;
 }
