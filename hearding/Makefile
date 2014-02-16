@@ -1,15 +1,17 @@
+CFLAGS = -O3 -funroll-loops -g -Wall -ansi
 CC = g++
-OPT = -O2
-LIBS = -lm
-WALL = -Wall
+SRCS = $(wildcard src/*.cpp)
+OBJS = $(SRCS:.cpp=.o)
+PROG = giftwrapping
+LINKFLAGS = -lm
 
-all : hearding
+all: $(SRCS) $(PROG)
 
-cpp : hearding.o
-	$(CC) $(WALL) $(OPT) -o cpp hearding.o $(LIBS)
+$(PROG): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $@ $(LINKFLAGS)
 
-hearding.o : hearding.cpp
-	$(CC) $(OPT) -c hearding.cpp
+.cpp.o:
+	$(CC) $(CFLAGS) $< -c -o $@
 
-clean: 
-	rm *.o hearding
+clean:
+	rm $(OBJS) $(PROG)

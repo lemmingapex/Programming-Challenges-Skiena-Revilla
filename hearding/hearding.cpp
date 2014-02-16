@@ -87,11 +87,6 @@ class Point
 			return result;
 		}
 
-		bool operator== (const Point& a) const
-		{
-			return (x == a.x && y == a.y);
-		}
-
 		double magnitude()
 		{
 			return sqrt((x*x)+(y*y));
@@ -109,7 +104,48 @@ class Point
 
 // array of all the Points
 Point allPoints[SIZE];
-int lenPoints;
+int lenPoints, right, l;
+
+// modified quicksort based on sin of the angle
+// faster to use sin, rather than the angle.
+// can use cos(x) because it is monotonically decreasing function with respect to x
+void sortPointsSin(int L, int R)
+{
+	int i = L, j = R;
+	Point tmp;
+	Point pivot = allPoints[(L+R)/2];
+	while(i <= j)
+	{
+		while((allPoints[i].x - allPoints[0].x)/allPoints[i].dist(allPoints[0]) > (pivot.x - allPoints[0].x)/pivot.dist(allPoints[0]))
+		{
+			i++;
+		}
+
+		while((allPoints[j].x - allPoints[0].x)/allPoints[j].dist(allPoints[0]) < (pivot.x - allPoints[0].x)/pivot.dist(allPoints[0]))
+		{
+			j--;
+		}
+
+		if(i <= j)
+		{
+			tmp = allPoints[i];
+			allPoints[i] = allPoints[j];
+			allPoints[j] = tmp;
+			i++;
+			j--;
+		}
+	};
+
+	if(L < j)
+	{
+		sortPointsSin(L, j);
+	}
+	if(i < R)
+	{
+		sortPointsSin(i, R);
+	}
+}
+
 
 //is point 3 a left turn or right turn with respect to point 1 and 2?
 double ccw(Point p1, Point p2, Point p3) {
@@ -118,25 +154,42 @@ double ccw(Point p1, Point p2, Point p3) {
 
 vector<int> findConvexHull() {
 	vector<int> convexHullIndices;
-	double minAngle = -4.0;
+	convexHullIndices.push_back(0);
+	convexHullIndices.push_back(1);
 
-	// number of points on the convex hull - 1
-	int i = 0;
-	double tAngle = 0.0;
-	int pointOnHullIndex = 0;
-	int endPointIndex = 0;
-	do {
-		convexHullIndices.push_back(pointOnHullIndex);
-		endPointIndex = 0;
-		for(int i=1; i<lenPoints; i++) {
-			if((allPoints[pointOnHullIndex] == allPoints[endPointIndex]) || ccw(allPoints[pointOnHullIndex], allPoints[endPointIndex], allPoints[i]) > 0) {
-				endPointIndex = i;
-			}
+	// number of points on the convex hull
+	int i = 2;
+	for(int j=2; j<lenPoints; j++) {
+		// while left turns or co-linear?
+		while(ccw(allPoints[convexHullIndices.at(i-2)], allPoints[convexHullIndices.at(i-1)], allPoints[j]) <= 0 && j<lenPoints) {
+			//printf("left\n");
+			//printf("push\n");
+			convexHullIndices.push_back(j);
+			i++;
+			j++;
 		}
-		pointOnHullIndex = endPointIndex;
-	} while(endPointIndex != convexHullIndices.at(0));
-
+		// if it's a right turn
+		if(ccw(allPoints[convexHullIndices.at(i-2)], allPoints[convexHullIndices.at(i-1)], allPoints[j]) > 0) {
+			//printf("right\n");
+			// remove points until it's a left turn
+			while(ccw(allPoints[convexHullIndices.at(i-2)], allPoints[convexHullIndices.at(i-1)], allPoints[j]) > 0) {
+				//printf("pop\n");
+				convexHullIndices.pop_back();
+				i--;
+			}
+			// add the new point;
+			//printf("push\n");
+			convexHullIndices.push_back(j);
+			i++;
+		}
+	}
 	return convexHullIndices;
+}
+
+void solve()
+{
+	if(lenPoints<2)
+		return;
 }
 
 int main() {
@@ -156,42 +209,45 @@ int main() {
 			readReturn = scanf("%lf", &allPoints[j].x);
 			readReturn = scanf("%lf", &allPoints[j].y);
 		}
-		
-		// find min x index
-		int minXIndex = 0;
+
+		// find min y index
+		int minYIndex = 0;
 		for(int j=1; j<lenPoints; j++) {
-			if(allPoints[j].x < allPoints[minXIndex].x) {
-				minXIndex = j;
-			} else if(allPoints[j].x == allPoints[minXIndex].x) {
-				// break ties with y-coordinate
-				if(allPoints[j].y < allPoints[minXIndex].y) {
-					minXIndex = j;
+			if(allPoints[j].y < allPoints[minYIndex].y) {
+				minYIndex = j;
+			} else if(allPoints[j].y == allPoints[minYIndex].y) {
+				// break ties with x-coordinate
+				if(allPoints[j].x < allPoints[minYIndex].x) {
+					minYIndex = j;
 				}
 			}
 		}
-		// swap min x index with 0 index
+		// swap min y index with 0 index
 		Point temp = allPoints[0];
-		allPoints[0] = allPoints[minXIndex];
-		allPoints[minXIndex] = temp;
-		
+		allPoints[0] = allPoints[minYIndex];
+		allPoints[minYIndex] = temp;
+
+		// sort the Points
+		sortPointsSin(1, lenPoints - 1);
 
 		// find the hull
 		vector<int> convexHullIndices = findConvexHull();		
 
-		int convexHullSize = convexHullIndices.size();
-		printf("Hull size: %i\n", convexHullSize);
-
-		int p1Index = convexHullIndices.at(0);
-		int p2Index = -1;
-		double perimeterLen = 0.0;
-		for(int j=1; j<convexHullSize; j++) {
-			p2Index = convexHullIndices.at(j);
-			perimeterLen += allPoints[p1Index].dist(allPoints[p2Index]);
-			p1Index = p2Index;
+		int i = 0;
+		for(int j=0; j<lenPoints; j++) {
+			if(convexHullIndices.at(i) == j) {
+				printf("%.2lf, %.2lf, [%i]\n", allPoints[convexHullIndices.at(i)].x, allPoints[convexHullIndices.at(i)].y, convexHullIndices.at(i)+1);
+				i++;
+			} else {
+				printf("%.2lf, %.2lf, %i\n", allPoints[j].x, allPoints[j].y, j+1);
+			}
 		}
-		perimeterLen += allPoints[p1Index].dist(allPoints[convexHullIndices.at(0)]);
 
-		printf("%.2lf\n", perimeterLen);
+		solve();
+
+		//printf("%.2lf\n", delta);
+
+		//printf("%s","INFINITY\n");
 		printf("\n");
 	}
 	return 0;
