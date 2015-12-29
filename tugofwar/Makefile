@@ -1,15 +1,23 @@
+CFLAGS = -O3 -funroll-loops -g -Wall -ansi
+#CFLAGS = -O2 -g -Wall -ansi
+#CFLAGS = -g -Wall -ansi
 CC = g++
-OPT = -O2
-WALL = -Wall
-NAME = tugofwar
+SRCS = $(wildcard src/*.cpp)
+OBJS = $(SRCS:.cpp=.o)
+PROG = TugOfWar
 
-all: $(NAME)
+# Windows (cygwin)
+ifeq "$(OS)" "Windows_NT"
+	PROG = TugOfWar.exe
+endif
 
-$(NAME): $(NAME).o
-	$(CC)  -lm -lcrypt -O2 -pipe -o $(NAME) $(NAME).o
+all: $(SRCS) $(PROG)
 
-$(NAME).o:
-	$(CC) $(OPT) -c $(NAME).cpp
+$(PROG): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $@
 
-clean: 
-	rm *.o $(NAME)
+.cpp.o:
+	$(CC) $(CFLAGS) $< -c -o $@
+
+clean:
+	rm $(OBJS) $(PROG)
