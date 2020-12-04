@@ -1,4 +1,3 @@
-Programming Challenges (Skiena & Revilla)
-=========================================
+# Programming Challenges (Skiena & Revilla)
 
-Some of my work for the programming challenges on [UVA Online Judge](http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=28).
+My solutions for some of the programming challenges seen in *Programming Challenges: The Programming Contest Training Manual by Skiena & Revilla* submitted to [UVA Online Judge](http://uva.onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&category=28).  

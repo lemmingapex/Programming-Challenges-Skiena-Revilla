@@ -1,0 +1,24 @@
+README
+
+Scott Wiedemann
+09/09/2010
+Closest Pairs Problem
+
+---------------------------------------------------------
+To compile my program:
+
+make clean
+make
+---------------------------------------------------------
+
+---------------------------------------------------------
+To run my code:
+
+cat ./input | ./cpp
+
+where ./input is a file containing the formatted data to 
+be processed.
+---------------------------------------------------------
+
+Please email me if you run into any problems or have any 
+questions: swiedema@mines.edu
