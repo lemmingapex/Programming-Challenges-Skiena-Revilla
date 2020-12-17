@@ -10,15 +10,14 @@ int main(int argc, const char *argv[]) {
 	int NCases;
 	scanf("%d", &NCases);
 
-	for(int c = 0; c < NCases; c++) {
+	for (int c = 0; c < NCases; c++) {
 		// number of people in this tug-of-war
 		int N;
 		scanf("%d", &N);
 
 		// integer division, round up
-		int centerPerson = (N + 1) / 2;
+		const int centerPerson = (N + 1) / 2;
 
-		// total weight of all the people in this tug-of-war
 		int totalWeight = 0;
 		for (int i = 0; i < N; i++) {
 			scanf("%d", &weights[i]);
@@ -50,30 +49,27 @@ int main(int argc, const char *argv[]) {
 			// get a persons weight
 			int iWeight = weights[i];
 			for (int j = i; j >= 0; j--) {
-
-				if (j > N/2) {
-					j = (N/2);
-				}
+				j = min(j, N/2);
 
 				// this is an optimization to break early, becauase we don't need to fill out the entire table!
-				if(i > centerPerson && (N/2) - j > N - i) {
+				if (i > centerPerson && (N/2) - j > N - i) {
 					break;
 				}
 
-				for(int indexAtJ=subsumCache[j][0]; indexAtJ>0; indexAtJ--) {
+				for (int indexAtJ = subsumCache[j][0]; indexAtJ > 0; indexAtJ--) {
 					int cachedWeight = subsumCache[j][indexAtJ];
 					int tWeight = iWeight + cachedWeight;
 
-					if(tWeight > W) {
+					if (tWeight > W) {
 						continue;
 					}
 
-					if(subsumExist[j][cachedWeight] == true) {
-						if(subsumExist[j+1][tWeight] == false) {
+					if (subsumExist[j][cachedWeight] == true) {
+						if (subsumExist[j + 1][tWeight] == false) {
 
-							subsumExist[j+1][tWeight]=true;
-							subsumCache[j+1][0]++;
-							subsumCache[j+1][subsumCache[j+1][0]]=tWeight;
+							subsumExist[j + 1][tWeight] = true;
+							subsumCache[j + 1][0]++;
+							subsumCache[j + 1][subsumCache[j + 1][0]] = tWeight;
 
 							// printf("subsumCache:\n");
 							//
@@ -91,15 +87,15 @@ int main(int argc, const char *argv[]) {
 		}
 
 		int team1Weight = 0;
-		int weightDiff = 450*100;
+		int weightDiff = 450 * 100;
 
 		// get the answer
 		for (int i = subsumCache[centerPerson][0]; i > 0; i--) {
 			int weight1 = subsumCache[centerPerson][i];
-			if(subsumExist[centerPerson][weight1]) {
+			if (subsumExist[centerPerson][weight1]) {
 				int weight2 = totalWeight - weight1;
 				int tWeightDiff = abs(weight1 - weight2);
-				if(tWeightDiff < weightDiff) {
+				if (tWeightDiff < weightDiff) {
 					weightDiff = tWeightDiff;
 					team1Weight = min(weight1, weight2);
 				}
@@ -108,7 +104,7 @@ int main(int argc, const char *argv[]) {
 
 		printf("%d %d\n", team1Weight, totalWeight - team1Weight);
 
-		if(c < NCases - 1) {
+		if (c < NCases - 1) {
 			printf("\n");
 		}
 

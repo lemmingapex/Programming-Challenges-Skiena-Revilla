@@ -1,7 +1,7 @@
 # [Football](https://onlinejudge.org/index.php?option=com_onlinejudge&Itemid=8&page=show_problem&problem=1135)
 
 ## Thoughts
-Nothing fancy here.  Sort the teams based on the described criteria.
+Nothing fancy here.  Sort the teams based on the described criteria using the built in sort.
 
 ## Compile
 `make`
