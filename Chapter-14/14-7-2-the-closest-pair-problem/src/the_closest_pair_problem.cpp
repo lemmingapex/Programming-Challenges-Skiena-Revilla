@@ -127,40 +127,44 @@ int main(int argc, const char *argv[]) {
 	int length;
 	char* buffer;
 
+	// should never seekg on cin! this is unreliable on many operating systems.  This is a big hack to speed things up.  Good thing you use linux, right?
 	cin.seekg(0, cin.end);
 	length = cin.tellg();
 	cin.seekg(0, cin.beg);
 
-	printf("%i", length);
+	// printf("%i\n", length);
 
 	buffer = new char [length];
-	// cin.read(buffer, length);
+	cin.read(buffer, length);
 
 	int j = 0;
-	// int lenPoints = fast_atoi(&buffer[j]);
-	// while (lenPoints != 0) {
-	// 	delta = SIZE;
-	// 	for(int i=0; i<lenPoints; ++i) {
-	// 		while(buffer[j] != '\n')
-	// 			++j;
-	// 		++j;
-	// 		points[i].x = fast_atof((char*) &buffer[j]);
-	// 		while(buffer[j] != ' ')
-	// 			++j;
-	// 		++j;
-	// 		points[i].y = fast_atof((char*) &buffer[j]);
-	// 	}
-	// 	while(buffer[j] != '\n')
-	// 		++j;
-	// 	++j;
-	//
-	// 	solve();
-	//
-	// 	if (delta >= SIZE) {
-	// 		printf("%s", "INFINITY\n");
-	// 	} else {
-	// 		printf("%.4lf\n", delta);
-	// 	}
-	// }
+	lenPoints = atoi(&buffer[j++]);
+	while (lenPoints != 0) {
+		delta = SIZE;
+		for(int i=0; i<lenPoints; ++i) {
+			while(buffer[j] != '\n')
+				++j;
+			++j;
+			points[i].x = fast_atof((char*) &buffer[j]);
+			// printf("%f  ", points[i].x);
+			while(buffer[j] != ' ')
+				++j;
+			++j;
+			points[i].y = fast_atof((char*) &buffer[j]);
+			// printf("%f\n", points[i].y);
+		}
+		while(buffer[j] != '\n')
+			++j;
+		++j;
+
+		solve();
+
+		if (delta >= SIZE) {
+			printf("%s", "INFINITY\n");
+		} else {
+			printf("%.4lf\n", delta);
+		}
+		lenPoints = atoi(&buffer[j++]);
+	}
 	return 0;
 }
