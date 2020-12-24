@@ -14,7 +14,7 @@ double inline distSq(const point& a, const point& b) {
 }
 
 double fast_atof(const char *c) {
-	double fval =0;
+	double fval = 0;
 	double tfval = 0;
 	double pof10 = 10.0;
 	char shift = '0';
@@ -24,9 +24,8 @@ double fast_atof(const char *c) {
 
 	fval = 0;
 	while ('0' <= *c && *c <= '9') {
-		fval *= 10.0;
 		tfval = *c - shift;
-		fval += tfval;
+		fval = (fval*10.0) + tfval;
 		++c;
 	}
 
@@ -49,14 +48,13 @@ double fast_atoi(const char *c) {
 	int tival = 0;
 	char shift = '0';
 
-	while (*c=='\t' || *c==' ')
+	while (*c == '\t' || *c == ' ')
 		++c;
 
 	ival = 0;
 	while ('0' <= *c && *c <= '9') {
-		ival *= 10;
 		tival = *c - shift;
-		ival += tival;
+		ival += (ival*10) + tival;
 		++c;
 	}
 
